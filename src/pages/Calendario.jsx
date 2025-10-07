@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import dayGridPlugin from "@fullcalendar/daygrid";
 import localePtBr from '@fullcalendar/core/locales/pt-br';
-import initialEvents from './data';
+import initialEvents from '../data';
 
 const CalendarView = () => {
   return (

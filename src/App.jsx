@@ -1,10 +1,10 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/sidebar";
-import DashboardRegular from "./DashboardRegular";
-import DashboardManutencao from "./DashboardManutencao";
-import CalendarView from "./Calendario";
-import Chatbot from "./Chatbot";
+import DashboardRegular from "./pages/DashboardRegular";
+import DashboardManutencao from "./pages/DashboardManutencao";
+import CalendarView from "./pages/Calendario";
+import Chatbot from "./pages/Chatbot";
 import "./App.css";
 
 
