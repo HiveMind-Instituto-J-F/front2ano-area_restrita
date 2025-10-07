@@ -1,22 +1,87 @@
-# React + Vite
+📌 Frontend - Área Restrita
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositório contém o frontend da área restrita, desenvolvido em React com Vite, visando performance, modularidade e uma melhor experiência de desenvolvimento.
 
-Currently, two official plugins are available:
+🚀 Tecnologias Utilizadas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React
+ – Biblioteca para construção de interfaces
 
-## React Compiler
+Vite
+ – Bundler rápido e simples
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+ESLint
+ – Padronização e qualidade do código
 
-## Expanding the ESLint configuration
+React Router
+ – Gerenciamento de rotas (caso esteja sendo usado)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# area-restrita
-# area-restrita
-# area-restrita
-# area-restrita
-# front2ano-area_restrita
-# front2ano-area_restrita
+[Axios ou Fetch] – Requisições HTTP para integração com o backend
+
+📂 Estrutura do Projeto
+area-restrita-frontend/
+│── public/          # Arquivos estáticos
+│── src/
+│   ├── assets/      # Imagens, ícones e estilos globais
+│   ├── components/  # Componentes reutilizáveis
+│   ├── pages/       # Páginas principais (Login, Dashboard, etc.)
+│   ├── services/    # Configuração de APIs e chamadas HTTP
+│   ├── hooks/       # Hooks customizados
+│   ├── App.jsx      # Configuração principal do app
+│   └── main.jsx     # Ponto de entrada do React
+│── .eslintrc.js     # Configurações do ESLint
+│── vite.config.js   # Configuração do Vite
+│── package.json     # Dependências e scripts
+
+⚙️ Como rodar o projeto
+Pré-requisitos
+
+Node.js (>= 18)
+
+npm ou yarn
+
+Instalação e execução
+# Clonar repositório
+git clone https://github.com/SEU-USUARIO/area-restrita-frontend.git
+
+# Acessar pasta
+cd area-restrita-frontend
+
+# Instalar dependências
+npm install
+
+# Rodar em ambiente de desenvolvimento
+npm run dev
+
+
+O projeto ficará disponível em: http://localhost:5173/
+
+🛠️ Scripts disponíveis
+
+npm run dev → inicia o servidor de desenvolvimento
+
+npm run build → gera a versão de produção
+
+npm run preview → visualiza o build localmente
+
+npm run lint → executa o ESLint para checagem de código
+
+🔒 Área Restrita
+
+O frontend foi construído para gerenciar a área restrita do sistema, contendo:
+
+Login e autenticação de usuários
+
+Controle de acesso por nível/permissão
+
+Dashboard com informações protegidas
+
+Integração com o backend via API
+
+📌 Próximos Passos
+
+ Implementar testes automatizados (Jest/React Testing Library)
+
+ Configurar autenticação JWT com refresh token
+
+ Criar documentação de rotas do frontend
