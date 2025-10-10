@@ -1,32 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ListFilter } from "lucide-react";
-import { collaboratorMaintenceData } from "../../../data";
 
 function processUsers(users, filterType) {
   let processedUsers = [...users];
 
   switch (filterType) {
     case "gmail":
-      const gmailRegex = /@gmail\.com$/i;
-      return processedUsers.filter((user) => gmailRegex.test(user.email));
+      return processedUsers.filter((user) => /@gmail\.com$/i.test(user.email));
 
     case "numericId":
-      const numericIdRegex = /^\d+$/;
-      return processedUsers.filter((user) => numericIdRegex.test(user.id));
+      return processedUsers.filter((user) => /^\d+$/.test(user.id));
 
     case "ordemAlfabetica":
-      // Implementação correta da ordenação alfabética
-      processedUsers.sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
-        if (nameA < nameB) {
-          return -1;
-        }
-        if (nameA > nameB) {
-          return 1;
-        }
-        return 0;
-      });
+      processedUsers.sort((a, b) =>
+        a.name.toUpperCase().localeCompare(b.name.toUpperCase())
+      );
       return processedUsers;
 
     default:
@@ -35,55 +23,99 @@ function processUsers(users, filterType) {
 }
 
 const ColaboradorManutencaoList = () => {
-  // 1. Inicializa o estado com os dados originais
-  const [filteredUsers, setFilteredUsers] = useState(collaboratorMaintenceData);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 2. Cria o manipulador para aplicar a ordenação
+  // 🔹 Busca os dados da API
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch("/api/trabalhador/listar"); // ajuste a rota se for diferente
+        const data = await response.json();
+
+        // 🔹 Filtra apenas os trabalhadores
+        const trabalhadores = data.filter(
+          (user) => user.tipo_perfil?.toLowerCase() === "engenheiro"
+        );
+
+        setFilteredUsers(trabalhadores);
+      } catch (error) {
+        console.error("Erro ao buscar colaboradores de manutenção:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
   const handleFilter = () => {
-    const result = processUsers(collaboratorMaintenceData, "ordemAlfabetica");
+    const result = processUsers(filteredUsers, "ordemAlfabetica");
     setFilteredUsers(result);
   };
+
+  if (loading) {
+    return <p>Carregando colaboradores de manutenção...</p>;
+  }
 
   return (
     <div className="card" style={{ width: "100%", maxWidth: "1200px", padding: "25px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h3>Últimas manutenções registradas</h3>
+        <h3>Colaboradores de Manutenção (Trabalhadores)</h3>
         <button
-          style={{ color: "#6b7280", display: "flex", alignItems: "center", fontSize: "14px", cursor: "pointer", background: "none", border: "none", padding: 0, margin: 0 }}
-          // 3. Usa o novo manipulador
+          style={{
+            color: "#6b7280",
+            display: "flex",
+            alignItems: "center",
+            fontSize: "14px",
+            cursor: "pointer",
+            background: "none",
+            border: "none",
+            padding: 0,
+            margin: 0,
+          }}
           onClick={handleFilter}
         >
           Filtrar e ordenar <ListFilter size={16} style={{ marginLeft: "5px" }} />
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr", marginTop: "25px", borderBottom: "1px solid #eee", fontSize: "13px", fontWeight: "600", color: "#6b7280" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "3fr 1fr 1fr",
+          marginTop: "25px",
+          borderBottom: "1px solid #eee",
+          fontSize: "13px",
+          fontWeight: "600",
+          color: "#6b7280",
+        }}
+      >
         <span>Nome do colaborador</span>
         <span>Setor</span>
-        <span style={{ textAlign: "right" }}>Maq consertada</span>
+        <span style={{ textAlign: "right" }}>Máq consertada</span>
       </div>
 
-      {/* 4. Mapeia sobre o estado atual (filteredUsers) */}
       {filteredUsers.map((item, index) => (
-        <div 
-          key={index} 
-          style={{ 
-            display: "grid", 
-            gridTemplateColumns: "3fr 1fr 1fr", 
-            padding: "12px 0", 
-            // Usa filteredUsers.length para a verificação de borda
-            borderBottom: index < filteredUsers.length - 1 ? "1px solid #f3f4f6" : "none" 
-          }}>
+        <div
+          key={item.id || index}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "3fr 1fr 1fr",
+            padding: "12px 0",
+            borderBottom: index < filteredUsers.length - 1 ? "1px solid #f3f4f6" : "none",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", fontWeight: "500" }}>
             <img
-              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name.charAt(0)}`}
+              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name?.charAt(0) || "U"}`}
               alt="avatar"
               style={{ borderRadius: "50%", marginRight: "10px", width: "28px", height: "28px" }}
             />
             <span>{item.name}</span>
           </div>
-          <span>{item.sector}</span>
-          <span style={{ textAlign: "right", fontWeight: "600" }}>{item.fixed_machine}</span>
+          <span>{item.sector || "—"}</span>
+          <span style={{ textAlign: "right", fontWeight: "600" }}>{item.fixed_machine ?? "—"}</span>
         </div>
       ))}
     </div>

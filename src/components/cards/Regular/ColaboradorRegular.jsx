@@ -1,32 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ListFilter } from "lucide-react";
-import { collaboratorData } from "../../../data";
 
 function processUsers(users, filterType) {
   let processedUsers = [...users];
 
   switch (filterType) {
     case "gmail":
-      const gmailRegex = /@gmail\.com$/i;
-      return processedUsers.filter((user) => gmailRegex.test(user.email));
+      return processedUsers.filter((user) => /@gmail\.com$/i.test(user.email));
 
     case "numericId":
-      const numericIdRegex = /^\d+$/;
-      return processedUsers.filter((user) => numericIdRegex.test(user.id));
+      return processedUsers.filter((user) => /^\d+$/.test(user.id));
 
     case "ordemAlfabetica":
-      // Implementação correta da ordenação alfabética
-      processedUsers.sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
-        if (nameA < nameB) {
-          return -1;
-        }
-        if (nameA > nameB) {
-          return 1;
-        }
-        return 0;
-      });
+      processedUsers.sort((a, b) =>
+        a.name.toUpperCase().localeCompare(b.name.toUpperCase())
+      );
       return processedUsers;
 
     default:
@@ -35,13 +23,41 @@ function processUsers(users, filterType) {
 }
 
 const ColaboradorRegularList = () => {
-  const [filteredUsers, setFilteredUsers] = useState(collaboratorData);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 🔹 Busca os dados da API
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch("/api/usuarios/listar"); // ajuste a rota se for diferente
+        const data = await response.json();
+
+        const trabalhadores = data.filter(
+          (user) =>
+            user.tipo_perfil &&
+            user.tipo_perfil.toLowerCase() === "operador"
+        );
+
+        setFilteredUsers(trabalhadores);
+      } catch (error) {
+        console.error("Erro ao buscar colaboradores:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
 
   const handleFilter = () => {
-    // CORREÇÃO: Chamando a função processUsers (o nome correto)
-    const result = processUsers(collaboratorData, "ordemAlfabetica");
+    const result = processUsers(filteredUsers, "ordemAlfabetica");
     setFilteredUsers(result);
   };
+
+  if (loading) {
+    return <p>Carregando colaboradores...</p>;
+  }
 
   return (
     <div
@@ -55,7 +71,7 @@ const ColaboradorRegularList = () => {
           alignItems: "center",
         }}
       >
-        <h3>Últimas paradas adicionadas</h3>
+        <h3>Colaboradores (Trabalhadores)</h3>
         <button
           style={{
             color: "#6b7280",
@@ -93,7 +109,7 @@ const ColaboradorRegularList = () => {
 
       {filteredUsers.map((item, index) => (
         <div
-          key={index}
+          key={item.id || index}
           style={{
             display: "grid",
             gridTemplateColumns: "3fr 1fr 1fr",
@@ -106,9 +122,7 @@ const ColaboradorRegularList = () => {
             style={{ display: "flex", alignItems: "center", fontWeight: "500" }}
           >
             <img
-              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name.charAt(
-                0
-              )}`}
+              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name?.charAt(0) || "U"}`}
               alt="avatar"
               style={{
                 borderRadius: "50%",
@@ -119,9 +133,9 @@ const ColaboradorRegularList = () => {
             />
             <span>{item.name}</span>
           </div>
-          <span>{item.sector}</span>
+          <span>{item.sector || "—"}</span>
           <span style={{ textAlign: "right", fontWeight: "600" }}>
-            {item.time}
+            {item.time ?? "—"}
           </span>
         </div>
       ))}

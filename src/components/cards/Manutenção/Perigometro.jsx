@@ -1,81 +1,81 @@
-import ReactSpeedometer from "react-d3-speedometer"
+import React from "react";
+import ReactSpeedometer from "react-d3-speedometer";
+import { useDashboardData } from "../../../hooks/useDashboardData";
 
-// Defina as cores para facilitar a manutenção e uso na legenda
-const DANGER_COLOR = '#FF5F6D'; // Vermelho
-const CAUTION_COLOR = '#FFC371'; // Laranja
-const GOOD_COLOR = '#007bff';    // Azul
-const EXCELLENT_COLOR = '#28a745'; // Verde
+const COLORS = {
+  danger: "#FF5F6D",
+  caution: "#FFC371",
+  good: "#007bff",
+  excellent: "#28a745"
+};
 
-// Componente auxiliar para renderizar cada item da legenda
 const LegendItem = ({ color, label }) => (
-    <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        fontSize: '0.85em' 
-    }}>
-      <span style={{ 
-        display: 'inline-block', 
-        width: '10px', 
-        height: '10px', 
-        backgroundColor: color, 
-        marginRight: '5px',
-        borderRadius: '50%'
-      }}></span>
-      <span>{label}</span>
-    </div>
+  <div style={{ display: "flex", alignItems: "center", fontSize: "0.85em" }}>
+    <span
+      style={{
+        width: "10px",
+        height: "10px",
+        backgroundColor: color,
+        marginRight: "5px",
+        borderRadius: "50%"
+      }}
+    ></span>
+    <span>{label}</span>
+  </div>
 );
 
-const GaugeManutencaoD3 = ({ valorAtual }) => {
+const GaugeManutencaoD3 = () => {
+  const { pieData, loading } = useDashboardData();
+
+  if (loading) return <p>Carregando medidor...</p>;
+
+  const manutencoes = pieData.find(d => d.name === "Manutenção")?.value ?? 0;
+  const paradas = pieData.find(d => d.name === "Parada")?.value ?? 0;
+  const total = manutencoes + paradas;
+  const valorAtual = total > 0 ? Math.round((manutencoes / total) * 100) : 0;
+
   return (
-    // Card compacto: 300px de largura
-    <div className="card" style={{ width: "100%", maxWidth: "440px", padding: "30px", marginLeft: "40px", boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        
-      <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.1em' }}>
+    <div className="card" style={{ width: "100%", maxWidth: "440px", padding: "30px", marginLeft: "40px" }}>
+      <h3 style={{ textAlign: "center", marginBottom: "15px", fontSize: "1.1em" }}>
         Manutenções vs. Paradas
       </h3>
 
-      {/* Contêiner do medidor */}
-      <div style={{ width: '100%', height: '180px', marginLeft: '75px' }}>
+      <div style={{ width: "100%", height: "180px", marginLeft: "75px" }}>
         <ReactSpeedometer
-          width={280} 
-          height={180} 
-
-          maxValue={100} 
-          minValue={0}   
-          value={valorAtual} 
-
-          customSegmentStops={[0, 30, 50, 75, 100]} 
+          width={280}
+          height={180}
+          maxValue={100}
+          minValue={0}
+          value={valorAtual}
+          customSegmentStops={[0, 30, 50, 75, 100]}
           segmentColors={[
-            DANGER_COLOR, // 0 a 30
-            CAUTION_COLOR, // 30 a 50
-            GOOD_COLOR,    // 50 a 75
-            EXCELLENT_COLOR, // 75 a 100
+            COLORS.danger,
+            COLORS.caution,
+            COLORS.good,
+            COLORS.excellent
           ]}
-          
-          ringWidth={35} 
-          needleColor="navy" 
-          currentValueText={`${valorAtual}`}
+          ringWidth={35}
+          needleColor="navy"
+          currentValueText={`${valorAtual}%`}
           valueTextFontSize="20px"
-          labelFontSize="10px" 
+          labelFontSize="10px"
         />
       </div>
 
-      {/* --- Legenda (Adicionada) --- */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', // Centraliza o bloco de legendas
-        gap: '10px', // Espaçamento horizontal entre os itens
-        marginTop: '15px', 
-        flexWrap: 'wrap' // Permite que a legenda quebre a linha se a tela for pequena
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "10px",
+        marginTop: "15px",
+        flexWrap: "wrap"
       }}>
-        <LegendItem color={DANGER_COLOR} label="0-30: Perigo" />
-        <LegendItem color={CAUTION_COLOR} label="30-50: Cuidado" />
-        <LegendItem color={GOOD_COLOR} label="50-75: Bom" />
-        <LegendItem color={EXCELLENT_COLOR} label="75-100: Ótimo" />
+        <LegendItem color={COLORS.danger} label="0-30: Perigo" />
+        <LegendItem color={COLORS.caution} label="30-50: Cuidado" />
+        <LegendItem color={COLORS.good} label="50-75: Bom" />
+        <LegendItem color={COLORS.excellent} label="75-100: Ótimo" />
       </div>
-      {/* ------------------------- */}
     </div>
   );
 };
 
-export default () => <GaugeManutencaoD3 valorAtual={45} />;
+export default GaugeManutencaoD3;

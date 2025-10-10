@@ -1,8 +1,12 @@
 import React from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
-import { barManutencaoData } from "../../data";
+import { useDashboardData } from "../../hooks/useDashboardData";
 
 const ManutencaoBarStats = () => {
+  const { barRegularData, loading } = useDashboardData();
+
+  if (loading) return <p>Carregando gráfico...</p>;
+
   return (
     <div className="card big">
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -10,11 +14,11 @@ const ManutencaoBarStats = () => {
       </div>
 
       <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={barManutencaoData}>
+        <BarChart data={barRegularData}>
           <XAxis dataKey="name" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} />
           <Tooltip />
-          <Bar dataKey="value" fill="#829c99ff" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="value" fill="#2563eb" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
