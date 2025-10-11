@@ -1,6 +1,6 @@
 import React from "react";
 import ReactSpeedometer from "react-d3-speedometer";
-import { useDashboardData } from "../../../hooks/useDashboardData";
+import { useDashboardData } from "../../../data";
 
 const COLORS = {
   danger: "#FF5F6D",

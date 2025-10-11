@@ -1,6 +1,6 @@
 import React from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { useDashboardData } from "../../../hooks/useDashboardData";
+import { useDashboardData } from "../../../data";
 
 const CardComparacao = () => {
   const { pieData, loading } = useDashboardData();
