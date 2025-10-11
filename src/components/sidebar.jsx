@@ -52,7 +52,7 @@ const Sidebar = () => {
     } catch (err) {
       console.error("Erro no logout:", err);
     } finally {
-      window.location.href = "/HivemindWeb_war/html/login.jsp";
+      window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
     }
   };
 
@@ -90,21 +90,12 @@ const Sidebar = () => {
               <i className="fa-calendario"></i> Calendário
             </NavLink>
           </li>
-          <li>
+          <li className="logout-item">
             <button
               onClick={handleLogout}
-              style={{
-                background: "none",
-                border: "none",
-                color: "white",
-                cursor: "pointer",
-                padding: "10px 0",
-                textAlign: "left",
-                width: "100%",
-                fontSize: "16px",
-              }}
+              className="logout-button"
             >
-              <i className="fa-logout" /> Sair
+              <i className="fa fa-sign-out-alt"></i> Sair
             </button>
           </li>
         </ul>
