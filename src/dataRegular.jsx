@@ -5,47 +5,33 @@ export function useDashboardData() {
   const [initialEvents, setInitialEvents] = useState([]);
   const [pieData, setPieData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [annualComparison, setAnnualComparison] = useState(null); // novo estado
+  const [annualComparison, setAnnualComparison] = useState(null);
+  const [paradasAnoAtual, setParadasAnoAtual] = useState(0); // <-- Novo state
 
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch("http://localhost:8080/api/registro/listar"); 
+        const res = await fetch("http://localhost:8081/api/registro/listar");
         const registros = await res.json();
 
-        const meses = [
-          "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-          "Jul", "Ago", "Set", "Out", "Nov", "Dez"
-        ];
-
-        const valoresPorMes = Array(12).fill(0);
-        registros.forEach((r) => {
-          const mes = new Date(r.dataInicio).getMonth(); 
-          valoresPorMes[mes] += r.tempoParada ?? 0; 
+        // --- CALENDÁRIO ---
+        const eventos = registros.map((r) => {
+          const dataInicio = new Date(`${r.data}T${r.hora_inicio}`);
+          const dataFim = new Date(`${r.data}T${r.hora_fim}`);
+          return {
+            title: `${r.descricao} - Máquina ${r.id_maquina}`,
+            start: dataInicio,
+            end: dataFim,
+            className: r.tipo_parada.toLowerCase() === "preventiva"
+              ? "event-manutencao"
+              : "event-parada",
+          };
         });
-
-        const dadosGrafico = meses.map((m, i) => ({
-          name: m,
-          value: valoresPorMes[i],
-        }));
-
-        setBarRegularData(dadosGrafico);
-
-        const eventos = registros.map((r) => ({
-          title: `${r.motivo} - Setor ${r.setor}`,
-          start: r.dataInicio,
-          end: r.dataFim,
-          className: r.motivo.toLowerCase().includes("manutenção")
-            ? "event-manutencao"
-            : "event-parada",
-        }));
         setInitialEvents(eventos);
 
-        // --- Pie chart ---
+        // --- PIE CHART ---
         const total = registros.length;
-        const manutencoes = registros.filter((r) =>
-          r.motivo.toLowerCase().includes("manutenção")
-        ).length;
+        const manutencoes = registros.filter(r => r.tipo_parada.toLowerCase() === "preventiva").length;
         const paradas = total - manutencoes;
 
         setPieData([
@@ -53,30 +39,45 @@ export function useDashboardData() {
           { id: 1, name: "Parada", value: paradas, color: "#94a3b8" },
         ]);
 
-        // --- Comparação anual ---
+        // --- GRÁFICO DE BARRAS ---
+        const valoresPorMes = Array(12).fill(0);
+        const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
+        registros.forEach(r => {
+          if (!r.date) return;
+          const dataParada = new Date(r.date);
+          if (!isNaN(dataParada)) {
+            const mes = dataParada.getMonth();
+            valoresPorMes[mes] += 1;
+          }
+        });
+
+        const dadosGrafico = meses.map((m, i) => ({ name: m, value: valoresPorMes[i] }));
+        setBarRegularData(dadosGrafico);
+
+        // --- COMPARAÇÃO ANUAL ---
         const anoAtual = new Date().getFullYear();
-        const anoAnterior = anoAtual - 1;
 
-        const paradasAnoAtual = registros.filter(
-          r => new Date(r.dataInicio).getFullYear() === anoAtual
-        ).length;
+        // Usar r.date em vez de r.data
+        const paradasAtual = registros.filter(r => {
+          const dataRegistro = new Date(r.date);
+          return !isNaN(dataRegistro) && dataRegistro.getFullYear() === anoAtual;
+        }).length;
 
-        const paradasAnoAnterior = registros.filter(
-          r => new Date(r.dataInicio).getFullYear() === anoAnterior
-        ).length;
+        const paradasAnterior = registros.filter(r => {
+          const dataRegistro = new Date(r.date);
+          return !isNaN(dataRegistro) && dataRegistro.getFullYear() === anoAtual - 1;
+        }).length;
 
-        let aumento = 0;
-        if (paradasAnoAnterior > 0) {
-          aumento = ((paradasAnoAtual - paradasAnoAnterior) / paradasAnoAnterior) * 100;
-        } else if (paradasAnoAtual > 0) {
-          aumento = 100; 
-        }
+        const aumento = paradasAnterior === 0 ? "N/A" : `${(((paradasAtual - paradasAnterior)/paradasAnterior)*100).toFixed       (2)}%`;
 
         setAnnualComparison({
-          paradasAnoAtual,
-          paradasAnoAnterior,
-          aumento: aumento.toFixed(1) + "%"
+          paradasAnoAtual: paradasAtual,
+          paradasAnoAnterior: paradasAnterior,
+          aumento,
         });
+
+        setParadasAnoAtual(paradasAtual); 
 
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
@@ -93,6 +94,7 @@ export function useDashboardData() {
     initialEvents,
     pieData,
     loading,
-    annualComparison, 
+    annualComparison,
+    paradasAnoAtual,
   };
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { useDashboardData } from "../../../data";
+import { useDashboardData } from "../../../dataManutencista";
 
 const CardDashboard = () => {
   const { loading, annualComparison, pieData } = useDashboardData();

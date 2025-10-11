@@ -10,7 +10,7 @@ const Sidebar = () => {
 
     async function fetchUser() {
       try {
-        const res = await fetch("/HivemindWeb_war/currentUser", {
+        const res = await fetch("http://localhost:8080/HivemindWeb_war/checkSession", {
           method: "GET",
           credentials: "include"
         });
@@ -29,7 +29,7 @@ const Sidebar = () => {
         } else {
           // não logado: opcional redirecionar para login
           localStorage.setItem("lastPage", window.location.pathname);
-          window.location.href = "/HivemindWeb_war/html/login.jsp";
+          window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
         }
       } catch (err) {
         console.error("fetch currentUser erro:", err);
@@ -66,7 +66,6 @@ const Sidebar = () => {
         />
         <div>
           <h4>{email ? email.split("@")[0] : "Usuário"}</h4>
-          <p>{email || "Carregando..."}</p>
         </div>
       </div>
       <nav>

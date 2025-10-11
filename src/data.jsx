@@ -12,14 +12,13 @@ export function useDashboardData() {
       try {
         // 🔹 Busca registros e manutenções em paralelo
         const [resRegistros, resManutencoes] = await Promise.all([
-          fetch("http://localhost:8080/api/registro/listar"),
-          fetch("http://localhost:8080/api/manutencao/listar"),
+          fetch("http://localhost:8081/api/registro/listar"),
+          fetch("http://localhost:8081/api/manutencao/listar"),
         ]);
 
         const registros = await resRegistros.json();
         const manutencoes = await resManutencoes.json();
 
-        // 🔹 Une todos os dados em um único array
         const todosEventos = [...registros, ...manutencoes];
 
         // === GERA GRÁFICO DE BARRAS ===

@@ -10,7 +10,7 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch("http://localhost:8080/api/manutencao/listar"); 
+        const res = await fetch("http://localhost:8081/api/manutencao/listar"); 
         const registros = await res.json();
 
         const meses = [

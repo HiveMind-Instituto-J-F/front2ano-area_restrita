@@ -1,6 +1,6 @@
 import React from "react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
-import { useDashboardData } from "../../data";
+import { useDashboardData } from "../../dataManutencista";
 
 const ManutencaoBarStats = () => {
   const { barRegularData, loading } = useDashboardData();

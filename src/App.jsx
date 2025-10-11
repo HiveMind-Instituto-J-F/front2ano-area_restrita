@@ -10,7 +10,7 @@ import "./App.css";
 function App() {
 
   useEffect(() => {
-    fetch("/HivemindWeb_war/checkSession", { credentials: "include" })
+    fetch("http://localhost:8080/HivemindWeb_war/checkSession", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (data.loggedIn) {
@@ -21,7 +21,7 @@ function App() {
           }
         } else {
           localStorage.setItem("lastPage", window.location.pathname);
-          window.location.href = "/HivemindWeb_war/html/login.jsp";
+          window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
         }
       });
   }, []);

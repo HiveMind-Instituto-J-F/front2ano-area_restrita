@@ -1,6 +1,6 @@
 import React from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { useDashboardData } from "../../../data";
+import { useDashboardData } from "../../../dataRegular";
 
 const CardComparacao = () => {
   const { pieData, loading } = useDashboardData();
@@ -41,7 +41,7 @@ const CardComparacao = () => {
         {maisParadasQueManutencoes && (
           <div style={{
             position: "absolute",
-            bottom: "10px",
+            bottom: "-15px",
             width: "100%",
             textAlign: "center",
             color: "#dc2626",
