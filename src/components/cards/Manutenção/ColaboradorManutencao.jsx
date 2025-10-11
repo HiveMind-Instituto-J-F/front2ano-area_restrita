@@ -5,15 +5,9 @@ function processUsers(users, filterType) {
   let processedUsers = [...users];
 
   switch (filterType) {
-    case "gmail":
-      return processedUsers.filter((user) => /@gmail\.com$/i.test(user.email));
-
-    case "numericId":
-      return processedUsers.filter((user) => /^\d+$/.test(user.id));
-
     case "ordemAlfabetica":
       processedUsers.sort((a, b) =>
-        a.name.toUpperCase().localeCompare(b.name.toUpperCase())
+        a.login.toUpperCase().localeCompare(b.login.toUpperCase())
       );
       return processedUsers;
 
@@ -26,21 +20,20 @@ const ColaboradorManutencaoList = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Busca os dados da API
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch("/api/trabalhador/listar"); // ajuste a rota se for diferente
+        const response = await fetch("http://localhost:8081/api/trabalhador/listar"); // URL completa
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-
-        // 🔹 Filtra apenas os trabalhadores
-        const trabalhadores = data.filter(
-          (user) => user.tipo_perfil?.toLowerCase() === "engenheiro"
+        const operadores = data.filter(
+          (user) => user.tipo_perfil?.toLowerCase() === "supervisor"
         );
-
-        setFilteredUsers(trabalhadores);
+        setFilteredUsers(operadores);
       } catch (error) {
-        console.error("Erro ao buscar colaboradores de manutenção:", error);
+        console.error("Erro ao buscar colaboradores:", error);
       } finally {
         setLoading(false);
       }
@@ -54,14 +47,21 @@ const ColaboradorManutencaoList = () => {
     setFilteredUsers(result);
   };
 
-  if (loading) {
-    return <p>Carregando colaboradores de manutenção...</p>;
-  }
+  if (loading) return <p>Carregando colaboradores...</p>;
 
   return (
-    <div className="card" style={{ width: "100%", maxWidth: "1200px", padding: "25px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h3>Colaboradores de Manutenção (Trabalhadores)</h3>
+    <div
+      className="card"
+      style={{ width: "100%", maxWidth: "1200px", padding: "25px" }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h3>Colaboradores (Operadores)</h3>
         <button
           style={{
             color: "#6b7280",
@@ -76,7 +76,8 @@ const ColaboradorManutencaoList = () => {
           }}
           onClick={handleFilter}
         >
-          Filtrar e ordenar <ListFilter size={16} style={{ marginLeft: "5px" }} />
+          Filtrar e ordenar{" "}
+          <ListFilter size={16} style={{ marginLeft: "5px" }} />
         </button>
       </div>
 
@@ -93,7 +94,7 @@ const ColaboradorManutencaoList = () => {
       >
         <span>Nome do colaborador</span>
         <span>Setor</span>
-        <span style={{ textAlign: "right" }}>Máq consertada</span>
+        <span style={{ textAlign: "right" }}>ID da Planta</span>
       </div>
 
       {filteredUsers.map((item, index) => (
@@ -103,19 +104,29 @@ const ColaboradorManutencaoList = () => {
             display: "grid",
             gridTemplateColumns: "3fr 1fr 1fr",
             padding: "12px 0",
-            borderBottom: index < filteredUsers.length - 1 ? "1px solid #f3f4f6" : "none",
+            borderBottom:
+              index < filteredUsers.length - 1 ? "1px solid #f3f4f6" : "none",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", fontWeight: "500" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", fontWeight: "500" }}
+          >
             <img
-              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name?.charAt(0) || "U"}`}
+              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.login.charAt(0).toUpperCase()}`}
               alt="avatar"
-              style={{ borderRadius: "50%", marginRight: "10px", width: "28px", height: "28px" }}
+              style={{
+                borderRadius: "50%",
+                marginRight: "10px",
+                width: "28px",
+                height: "28px",
+              }}
             />
-            <span>{item.name}</span>
+            <span>{item.login}</span>
           </div>
-          <span>{item.sector || "—"}</span>
-          <span style={{ textAlign: "right", fontWeight: "600" }}>{item.fixed_machine ?? "—"}</span>
+          <span>{item.setor || "—"}</span>
+          <span style={{ textAlign: "right", fontWeight: "600" }}>
+            {item.id_planta}
+          </span>
         </div>
       ))}
     </div>
