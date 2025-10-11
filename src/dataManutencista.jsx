@@ -11,33 +11,30 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch("http://localhost:8081/api/manutencao/listar"); 
+        const res = await fetch("http://localhost:8081/api/manutencao/listar");
         const registros = await res.json();
 
-        const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         const valoresPorMes = Array(12).fill(0);
 
-        // --- Gerar datas fictícias caso não existam ---
-        const registrosComDatas = registros.map((r, index) => {
-          // Criar datas fictícias dentro do ano atual
-          const dia = index + 1 <= 28 ? index + 1 : 28; // evitar datas inválidas
-          const dataInicio = new Date(new Date().getFullYear(), 9, dia, 8, 0); // outubro
-          const dataFim = new Date(new Date().getFullYear(), 9, dia, 9, 30);
-          const motivo = r.acao_realizada; // usar ação como motivo
-
-          return { ...r, dataInicio, dataFim, motivo };
+        // --- CONVERTER AS DATAS DO BACKEND ---
+        const registrosComDatas = registros.map((r) => {
+          const data = new Date(r.date); // vem em formato "YYYY-MM-DD"
+          const dataInicio = new Date(data.setHours(8, 0, 0)); // 8h da manhã
+          const dataFim = new Date(data.setHours(9, 30, 0)); // 9h30
+          return { ...r, dataInicio, dataFim };
         });
 
         // --- GRÁFICO DE BARRAS ---
-        registrosComDatas.forEach(r => {
+        registrosComDatas.forEach((r) => {
           const mes = r.dataInicio.getMonth();
-          valoresPorMes[mes] += 1; // somar 1 hora/fictício
+          valoresPorMes[mes] += 1;
         });
 
         setBarRegularData(meses.map((m, i) => ({ name: m, value: valoresPorMes[i] })));
 
         // --- CALENDÁRIO ---
-        const eventos = registrosComDatas.map(r => ({
+        const eventos = registrosComDatas.map((r) => ({
           title: `${r.acao_realizada} - Máquina ${r.id_maquina}`,
           start: r.dataInicio,
           end: r.dataFim,
@@ -47,8 +44,9 @@ export function useDashboardData() {
         }));
         setInitialEvents(eventos);
 
+        // --- GRÁFICO DE PIZZA ---
         const total = registrosComDatas.length;
-        const manutencoes = registrosComDatas.filter(r =>
+        const manutencoes = registrosComDatas.filter((r) =>
           r.acao_realizada.toLowerCase().includes("manutenção")
         ).length;
         const paradas = total - manutencoes;
@@ -61,16 +59,19 @@ export function useDashboardData() {
         // --- COMPARAÇÃO ANUAL ---
         const anoAtual = new Date().getFullYear();
         const paradasAnoAtual = registrosComDatas.filter(
-          r => r.dataInicio.getFullYear() === anoAtual
+          (r) => r.dataInicio.getFullYear() === anoAtual
         ).length;
 
         const paradasAnoAnterior = registrosComDatas.filter(
-          r => r.dataInicio.getFullYear() === anoAtual - 1
+          (r) => r.dataInicio.getFullYear() === anoAtual - 1
         ).length;
 
         let aumento = "0.0%";
         if (paradasAnoAnterior > 0) {
-          aumento = `${(((paradasAnoAtual - paradasAnoAnterior) / paradasAnoAnterior) * 100).toFixed(1)}%`;
+          aumento = `${(
+            ((paradasAnoAtual - paradasAnoAnterior) / paradasAnoAnterior) *
+            100
+          ).toFixed(1)}%`;
         } else if (paradasAnoAtual > 0) {
           aumento = "100.0%";
         }

@@ -7,33 +7,61 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        const resRegistros = await fetch("http://localhost:8081/api/registro/listar");
-        const registros = await resRegistros.json();
+        // --- Requisições paralelas ---
+        const [resRegistros, resManutencoes] = await Promise.all([
+          fetch("http://localhost:8081/api/registro/listar"),
+          fetch("http://localhost:8081/api/manutencao/listar"),
+        ]);
 
-        // Cria eventos válidos para o calendário
-        const eventos = registros
-          .map(r => {
+        const registros = await resRegistros.json();
+        const manutencoes = await resManutencoes.json();
+
+        // --- Converter registros (paradas) em eventos ---
+        const eventosRegistros = registros
+          .map((r) => {
             if (!r.date || !r.hora_inicio || !r.hora_fim) return null;
 
-            // Combina a data do registro com hora_inicio/hora_fim
             const start = new Date(`${r.date.split("T")[0]}T${r.hora_inicio}`);
             const end = new Date(`${r.date.split("T")[0]}T${r.hora_fim}`);
 
             if (isNaN(start) || isNaN(end)) return null;
 
             return {
-              title: `${r.descricao} - Máquina ${r.id_maquina}`,
+              title: `${r.descricao || "Parada"} - Máquina ${r.id_maquina}`,
               start,
               end,
-              className: r.tipo_parada?.toLowerCase() === "preventiva"
-                ? "event-manutencao"
-                : "event-parada",
+              className:
+                r.tipo_parada?.toLowerCase() === "preventiva"
+                  ? "event-manutencao"
+                  : "event-parada",
             };
           })
-          .filter(Boolean); // Remove nulls
+          .filter(Boolean);
 
-        console.log("Eventos para o calendário:", eventos);
-        setInitialEvents(eventos);
+        // --- Converter manutenções em eventos ---
+        const eventosManutencao = manutencoes
+          .map((m) => {
+            if (!m.date || !m.hora_inicio || !m.hora_fim) return null;
+
+            const start = new Date(`${m.date.split("T")[0]}T${m.hora_inicio}`);
+            const end = new Date(`${m.date.split("T")[0]}T${m.hora_fim}`);
+
+            if (isNaN(start) || isNaN(end)) return null;
+
+            return {
+              title: `${m.acao_realizada} - Máquina ${m.id_maquina}`,
+              start,
+              end,
+              className: "event-manutencao",
+            };
+          })
+          .filter(Boolean);
+
+        // --- Unir tudo em um só calendário ---
+        const todosEventos = [...eventosRegistros, ...eventosManutencao];
+
+        console.log("Eventos para o calendário:", todosEventos);
+        setInitialEvents(todosEventos);
 
       } catch (err) {
         console.error("Erro ao buscar dados do calendário:", err);
