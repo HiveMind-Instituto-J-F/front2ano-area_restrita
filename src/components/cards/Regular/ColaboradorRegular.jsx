@@ -1,32 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ListFilter } from "lucide-react";
-import { collaboratorData } from "../../../data";
 
 function processUsers(users, filterType) {
   let processedUsers = [...users];
 
   switch (filterType) {
-    case "gmail":
-      const gmailRegex = /@gmail\.com$/i;
-      return processedUsers.filter((user) => gmailRegex.test(user.email));
-
-    case "numericId":
-      const numericIdRegex = /^\d+$/;
-      return processedUsers.filter((user) => numericIdRegex.test(user.id));
-
     case "ordemAlfabetica":
-      // Implementação correta da ordenação alfabética
-      processedUsers.sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
-        if (nameA < nameB) {
-          return -1;
-        }
-        if (nameA > nameB) {
-          return 1;
-        }
-        return 0;
-      });
+      processedUsers.sort((a, b) =>
+        a.login.toUpperCase().localeCompare(b.login.toUpperCase())
+      );
       return processedUsers;
 
     default:
@@ -35,13 +17,37 @@ function processUsers(users, filterType) {
 }
 
 const ColaboradorRegularList = () => {
-  const [filteredUsers, setFilteredUsers] = useState(collaboratorData);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch("http://localhost:8081/api/trabalhador/listar"); // URL completa
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const operadores = data.filter(
+          (user) => user.tipo_perfil?.toLowerCase() === "operador"
+        );
+        setFilteredUsers(operadores);
+      } catch (error) {
+        console.error("Erro ao buscar colaboradores:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, []);
 
   const handleFilter = () => {
-    // CORREÇÃO: Chamando a função processUsers (o nome correto)
-    const result = processUsers(collaboratorData, "ordemAlfabetica");
+    const result = processUsers(filteredUsers, "ordemAlfabetica");
     setFilteredUsers(result);
   };
+
+  if (loading) return <p>Carregando colaboradores...</p>;
 
   return (
     <div
@@ -55,7 +61,7 @@ const ColaboradorRegularList = () => {
           alignItems: "center",
         }}
       >
-        <h3>Últimas paradas adicionadas</h3>
+        <h3>Colaboradores (Operadores)</h3>
         <button
           style={{
             color: "#6b7280",
@@ -88,12 +94,12 @@ const ColaboradorRegularList = () => {
       >
         <span>Nome do colaborador</span>
         <span>Setor</span>
-        <span style={{ textAlign: "right" }}>Tempo Min</span>
+        <span style={{ textAlign: "right" }}>ID da Planta</span>
       </div>
 
       {filteredUsers.map((item, index) => (
         <div
-          key={index}
+          key={item.id || index}
           style={{
             display: "grid",
             gridTemplateColumns: "3fr 1fr 1fr",
@@ -106,9 +112,7 @@ const ColaboradorRegularList = () => {
             style={{ display: "flex", alignItems: "center", fontWeight: "500" }}
           >
             <img
-              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.name.charAt(
-                0
-              )}`}
+              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.login.charAt(0).toUpperCase()}`}
               alt="avatar"
               style={{
                 borderRadius: "50%",
@@ -117,11 +121,11 @@ const ColaboradorRegularList = () => {
                 height: "28px",
               }}
             />
-            <span>{item.name}</span>
+            <span>{item.login}</span>
           </div>
-          <span>{item.sector}</span>
+          <span>{item.setor || "—"}</span>
           <span style={{ textAlign: "right", fontWeight: "600" }}>
-            {item.time}
+            {item.id_planta}
           </span>
         </div>
       ))}
