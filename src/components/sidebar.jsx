@@ -16,7 +16,6 @@ const Sidebar = () => {
         });
 
         if (!res.ok) {
-          // se erro de rede/500, opcional tratar
           console.error("Erro ao buscar usuário:", res.status);
           return;
         }
