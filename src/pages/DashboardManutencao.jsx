@@ -6,7 +6,7 @@ import GaugeManutencaoD3 from "../components/cards/Manutenção/Perigometro";
 
 const DashboardManutencao = () => {
   return (
-    <div className="dashboardManutencao">
+    <div className="dashboardManutencao" style={{ display: "grid", gap: "20px" }}>
       <CardDashboard />
       <ManutencaoBarStats />
       <ColaboradorManutencaoList />

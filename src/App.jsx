@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./components/sidebar";
 import DashboardRegular from "./pages/DashboardRegular";
 import DashboardManutencao from "./pages/DashboardManutencao";
@@ -7,8 +7,26 @@ import CalendarView from "./pages/Calendario";
 import Chatbot from "./pages/Chatbot";
 import "./App.css";
 
-
 function App() {
+
+  useEffect(() => {
+    fetch("http://localhost:8080/HivemindWeb_war/checkSession", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        if (data.loggedIn) {
+          const lastPage = localStorage.getItem("lastPage");
+          if (lastPage) {
+            localStorage.removeItem("lastPage");
+            navigate(lastPage);
+          }
+        } else {
+          localStorage.setItem("lastPage", window.location.pathname);
+          window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
+        }
+      });
+  }, []);
+
+
   return (
     <div className="app">
       <div className="main">
@@ -23,7 +41,14 @@ function App() {
               <Route path="/dashboardRegular" element={<DashboardRegular />} />
               <Route path="/manutencao" element={<DashboardManutencao />} />
               <Route path="/chatbot" element={<Chatbot />} />
-              <Route path="/calendario" element={<div className="calendar-page-container"><CalendarView /></div>} />
+              <Route
+                path="/calendario"
+                element={
+                  <div className="calendar-page-container">
+                    <CalendarView />
+                  </div>
+                }
+              />
             </Routes>
           </main>
         </div>
