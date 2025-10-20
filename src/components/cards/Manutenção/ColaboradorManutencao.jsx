@@ -23,14 +23,14 @@ const ColaboradorManutencaoList = () => {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch(`${import.meta.env.API_URL}/api/trabalhador/listar`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/trabalhador/listar`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
-                   "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+                   "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
          },
         body: JSON.stringify({ message: userMsg.text }),
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
