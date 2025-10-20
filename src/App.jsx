@@ -8,6 +8,7 @@ import Chatbot from "./pages/Chatbot";
 import "./App.css";
 
 function App() {
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8080/HivemindWeb_war/checkSession", { credentials: "include" })

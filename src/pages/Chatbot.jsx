@@ -24,10 +24,10 @@ const ChatIA = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.API_URL}/chat`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
-                   "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+                   "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
          },
         body: JSON.stringify({ message: userMsg.text }),
       });

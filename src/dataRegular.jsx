@@ -11,13 +11,14 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch(`${import.meta.env.API_URL}api/manutencao/listar`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}api/manutencao/listar`, {
           method: "GET",
           headers: {
-            "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+            "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
           },
+          mode: "cors",          // garante requisição CORS
+          credentials: "include", // se o backend usar cookies/autenticação
         });
-        
         const registros = await res.json();
 
         // --- CALENDÁRIO ---
