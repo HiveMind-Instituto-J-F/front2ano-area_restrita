@@ -23,7 +23,14 @@ const ColaboradorRegularList = () => {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch("http://localhost:8081/api/trabalhador/listar"); // URL completa
+        const response = await fetch(`${import.meta.env.API_URL}/api/trabalhador/listar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+                   "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+         },
+        body: JSON.stringify({ message: userMsg.text }),
+        });
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

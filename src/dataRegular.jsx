@@ -6,12 +6,18 @@ export function useDashboardData() {
   const [pieData, setPieData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [annualComparison, setAnnualComparison] = useState(null);
-  const [paradasAnoAtual, setParadasAnoAtual] = useState(0); // <-- Novo state
+  const [paradasAnoAtual, setParadasAnoAtual] = useState(0);
 
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch("http://localhost:8081/api/registro/listar");
+        const res = await fetch(`${import.meta.env.API_URL}api/manutencao/listar`, {
+          method: "GET",
+          headers: {
+            "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+          },
+        });
+        
         const registros = await res.json();
 
         // --- CALENDÁRIO ---
