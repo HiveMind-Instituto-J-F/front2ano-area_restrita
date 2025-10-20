@@ -1,0 +1,36 @@
+name: Frontend pipeline
+
+jobs:
+  react-frontend:
+    name: 🌐 Frontend - React
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 🟢 Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📦 Instalar dependências
+        run: npm install
+
+      - name: ✅ Rodar testes
+        run: npm test -- --watchAll=false
+
+      - name: 🔍 Verificar estilo (ESLint)
+        run: npm run lint
+
+      - name: ⚙️ Buildar frontend
+        run: npm run build
+
+      - name:  Render Deploy
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: "${{secrets.SERVICE_ID}}"
+          api-key: "${{secrets.API_KEY}}"

@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 
 export function useDashboardData() {
+
   const [initialEvents, setInitialEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        // --- Requisições paralelas ---
+        const headers = {
+          "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+        };
+
         const [resRegistros, resManutencoes] = await Promise.all([
-          fetch("http://localhost:8081/api/registro/listar"),
-          fetch("http://localhost:8081/api/manutencao/listar"),
+          fetch(`${import.meta.env.API_URL}/api/registro/listar`, { headers }),
+          fetch(`${import.meta.env.API_URL}/api/manutencao/listar`, { headers }),
         ]);
 
         const registros = await resRegistros.json();
         const manutencoes = await resManutencoes.json();
 
-        // --- Converter registros (paradas) em eventos ---
         const eventosRegistros = registros
           .map((r) => {
             if (!r.date || !r.hora_inicio || !r.hora_fim) return null;

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Send } from "lucide-react";
 
 const ChatIA = () => {
+  const username = "admin";
+  const password = "teste";
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +15,6 @@ const ChatIA = () => {
     "Existe algum problema em potencial que eu deveria dar uma olhada?",
   ];
 
-  // 🚀 Função que envia a mensagem ao backend Java
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -22,9 +24,11 @@ const ChatIA = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8081/chat", {
+      const response = await fetch(`${import.meta.env.API_URL}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+                   "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+         },
         body: JSON.stringify({ message: userMsg.text }),
       });
 

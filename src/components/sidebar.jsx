@@ -26,7 +26,6 @@ const Sidebar = () => {
         if (data.loggedIn) {
           setEmail(data.email || "");
         } else {
-          // não logado: opcional redirecionar para login
           localStorage.setItem("lastPage", window.location.pathname);
           window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
         }

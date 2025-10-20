@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 export function useDashboardData() {
+
   const [barRegularData, setBarRegularData] = useState([]);
   const [initialEvents, setInitialEvents] = useState([]);
   const [pieData, setPieData] = useState([]);
@@ -11,7 +12,13 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchParadasData() {
       try {
-        const res = await fetch("http://localhost:8081/api/manutencao/listar");
+      const res = await fetch(`${import.meta.env.API_URL}/api/manutencao/listar`, {
+          method: "GET",
+          headers: {
+            "Authorization": "Basic " + btoa(`${import.meta.env.USERNAME_CREDENTIAL}:${import.meta.env.PASSWORD_CREDENTIAL}`),
+          },
+        });
+
         const registros = await res.json();
 
         const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
