@@ -23,12 +23,13 @@ const ColaboradorRegularList = () => {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/trabalhador/listar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-                   "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
-         },
-        body: JSON.stringify({ message: userMsg.text }),
+          const response = await fetch(`${import.meta.env.VITE_API_URL}api/trabalhador/listar`, {
+          method: "GET",
+          headers: {
+            "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
+          },
+          mode: "cors",          
+          credentials: "include", 
         });
 
         if (!response.ok) {

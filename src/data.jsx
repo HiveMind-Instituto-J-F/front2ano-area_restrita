@@ -13,8 +13,8 @@ export function useDashboardData() {
         };
 
         const [resRegistros, resManutencoes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL}/api/registro/listar`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL}/api/manutencao/listar`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL}api/registro/listar`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL}api/manutencao/listar`, { headers }),
         ]);
 
         const registros = await resRegistros.json();
