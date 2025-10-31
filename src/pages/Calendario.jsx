@@ -43,8 +43,8 @@ const CalendarView = () => {
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"
           locale={localePtBr}
-          slotMinTime="07:00:00"
-          slotMaxTime="18:00:00"
+          slotMinTime="01:00:00"
+          slotMaxTime="24:00:00"
           weekends={true}
           headerToolbar={{
             left: "prev,next",
