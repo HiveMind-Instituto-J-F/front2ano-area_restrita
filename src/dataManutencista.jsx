@@ -24,18 +24,17 @@ export function useDashboardData() {
 
         const registros = await res.json();
 
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
         const valoresPorMes = Array(12).fill(0);
 
-        // --- CONVERTER AS DATAS DO BACKEND ---
         const registrosComDatas = registros.map((r) => {
-          const data = new Date(r.date); // vem em formato "YYYY-MM-DD"
-          const dataInicio = new Date(data.setHours(8, 0, 0)); // 8h da manhã
-          const dataFim = new Date(data.setHours(9, 30, 0)); // 9h30
+          const data = new Date(r.dt_manutencao);
+          const dataInicio = new Date(`${r.dt_manutencao}T${r.hora_inicio}`);
+          const dataFim = new Date(`${r.dt_manutencao}T${r.hora_fim}`);
+
           return { ...r, dataInicio, dataFim };
         });
 
-        // --- GRÁFICO DE BARRAS ---
         registrosComDatas.forEach((r) => {
           const mes = r.dataInicio.getMonth();
           valoresPorMes[mes] += 1;
@@ -43,30 +42,24 @@ export function useDashboardData() {
 
         setBarRegularData(meses.map((m, i) => ({ name: m, value: valoresPorMes[i] })));
 
-        // --- CALENDÁRIO ---
         const eventos = registrosComDatas.map((r) => ({
-          title: `${r.acao_realizada} - Máquina ${r.id_maquina}`,
+          title: `${r.des_acao_realizada} - Máquina ${r.id_maquina}`,
           start: r.dataInicio,
           end: r.dataFim,
-          className: r.acao_realizada.toLowerCase().includes("manutenção")
-            ? "event-manutencao"
-            : "event-parada",
+          className: "event-manutencao", // ✅ tudo aqui é manutenção
         }));
+
         setInitialEvents(eventos);
 
-        // --- GRÁFICO DE PIZZA ---
         const total = registrosComDatas.length;
-        const manutencoes = registrosComDatas.filter((r) =>
-          r.acao_realizada.toLowerCase().includes("manutenção")
-        ).length;
-        const paradas = total - manutencoes;
+        const manutencoes = total; // ✅ tudo é manutenção na rota manutencao
+        const paradas = 0;
 
         setPieData([
           { id: 0, name: "Manutenção", value: manutencoes, color: "#2563eb" },
           { id: 1, name: "Parada", value: paradas, color: "#94a3b8" },
         ]);
 
-        // --- COMPARAÇÃO ANUAL ---
         const anoAtual = new Date().getFullYear();
         const paradasAnoAtual = registrosComDatas.filter(
           (r) => r.dataInicio.getFullYear() === anoAtual

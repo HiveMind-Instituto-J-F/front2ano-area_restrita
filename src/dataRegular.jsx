@@ -20,20 +20,20 @@ export function useDashboardData() {
           credentials: "include", // se o backend usar cookies/autenticação
         });
         const registros = await res.json();
-
         console.log(registros);
 
         // --- CALENDÁRIO ---
         const eventos = registros.map((r) => {
-          const dataInicio = new Date(`${r.data}T${r.hora_inicio}`);
-          const dataFim = new Date(`${r.data}T${r.hora_fim}`);
+          const dataInicio = new Date(`${r.dt_parada}T${r.hora_inicio}`);
+          const dataFim = new Date(`${r.dt_parada}T${r.hora_fim}`);
+
+          const isManutencao = r.id_manutencao !== null;
+
           return {
-            title: `${r.descricao} - Máquina ${r.id_maquina}`,
+            title: `${r.des_parada ?? "Parada"} - Máquina ${r.id_maquina}`,
             start: dataInicio,
             end: dataFim,
-            className: r.tipo_parada.toLowerCase() === "preventiva"
-              ? "event-manutencao"
-              : "event-parada",
+            className: isManutencao ? "event-manutencao" : "event-parada",
           };
         });
         setInitialEvents(eventos);
@@ -48,13 +48,12 @@ export function useDashboardData() {
           { id: 1, name: "Parada", value: paradas, color: "#94a3b8" },
         ]);
 
-        // --- GRÁFICO DE BARRAS ---
+        // --- BARRAS MÊS ---
         const valoresPorMes = Array(12).fill(0);
         const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
         registros.forEach(r => {
-          if (!r.date) return;
-          const dataParada = new Date(r.date);
+          const dataParada = new Date(r.dt_parada);
           if (!isNaN(dataParada)) {
             const mes = dataParada.getMonth();
             valoresPorMes[mes] += 1;
@@ -67,18 +66,19 @@ export function useDashboardData() {
         // --- COMPARAÇÃO ANUAL ---
         const anoAtual = new Date().getFullYear();
 
-        // Usar r.date em vez de r.data
         const paradasAtual = registros.filter(r => {
-          const dataRegistro = new Date(r.date);
-          return !isNaN(dataRegistro) && dataRegistro.getFullYear() === anoAtual;
+          const d = new Date(r.dt_parada);
+          return !isNaN(d) && d.getFullYear() === anoAtual;
         }).length;
 
         const paradasAnterior = registros.filter(r => {
-          const dataRegistro = new Date(r.date);
-          return !isNaN(dataRegistro) && dataRegistro.getFullYear() === anoAtual - 1;
+          const d = new Date(r.dt_parada);
+          return !isNaN(d) && d.getFullYear() === anoAtual - 1;
         }).length;
 
-        const aumento = paradasAnterior === 0 ? "N/A" : `${(((paradasAtual - paradasAnterior)/paradasAnterior)*100).toFixed       (2)}%`;
+        const aumento = paradasAnterior === 0
+          ? "N/A"
+          : `${(((paradasAtual - paradasAnterior) / paradasAnterior) * 100).toFixed(2)}%`;
 
         setAnnualComparison({
           paradasAnoAtual: paradasAtual,
@@ -86,7 +86,7 @@ export function useDashboardData() {
           aumento,
         });
 
-        setParadasAnoAtual(paradasAtual); 
+        setParadasAnoAtual(paradasAtual);
 
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
