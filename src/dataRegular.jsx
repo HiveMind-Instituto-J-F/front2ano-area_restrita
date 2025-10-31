@@ -65,7 +65,6 @@ export function useDashboardData() {
         setInitialEvents(eventos);
 
         // --- PIE CHART (CORRIGIDO) ---
-        // Baseado no id_manutencao em vez de tipo_parada
         const manutencoes = registrosValidos.filter(r => 
           r.id_manutencao !== null && r.id_manutencao !== undefined
         ).length;

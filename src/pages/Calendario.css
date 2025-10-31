@@ -1,0 +1,181 @@
+.calendar-container {
+       padding: 20px;
+       background: white;
+       border-radius: 8px;
+       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+     }
+     /* Modal Overlay */
+     .modal-overlay {
+       position: fixed;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: rgba(0, 0, 0, 0.6);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       z-index: 1000;
+       padding: 20px;
+     }
+     .modal-content {
+       background: white;
+       border-radius: 12px;
+       width: 100%;
+       max-width: 500px;
+       max-height: 90vh;
+       overflow-y: auto;
+       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+     }
+     /* Header */
+     .modal-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: flex-start;
+       padding: 24px 24px 0 24px;
+       border-bottom: 1px solid #e5e7eb;
+       padding-bottom: 20px;
+     }
+     .modal-title {
+       display: flex;
+       flex-direction: column;
+       gap: 8px;
+     }
+     .modal-title h3 {
+       margin: 0;
+       font-size: 1.25rem;
+       font-weight: 600;
+       color: #111827;
+     }
+     .event-badge {
+       padding: 4px 12px;
+       border-radius: 20px;
+       font-size: 0.75rem;
+       font-weight: 500;
+       text-transform: uppercase;
+       letter-spacing: 0.05em;
+     }
+     .event-badge.manutencao {
+       background: #dbeafe;
+       color: #1e40af;
+     }
+     .event-badge.parada {
+       background: #fee2e2;
+       color: #dc2626;
+     }
+     .close-button {
+       background: none;
+       border: none;
+       cursor: pointer;
+       color: #6b7280;
+       padding: 4px;
+       border-radius: 4px;
+       transition: all 0.2s;
+     }
+     .close-button:hover {
+       background: #f3f4f6;
+       color: #374151;
+     }
+     /* Body */
+     .modal-body {
+       padding: 24px;
+     }
+     .info-section {
+       display: flex;
+       flex-direction: column;
+       gap: 16px;
+       margin-bottom: 24px;
+     }
+     .info-item {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+     }
+     .info-item svg {
+       color: #6b7280;
+       flex-shrink: 0;
+     }
+     .info-label {
+       display: block;
+       font-size: 0.875rem;
+       color: #6b7280;
+       margin-bottom: 2px;
+     }
+     .info-value {
+       display: block;
+       font-size: 0.95rem;
+       font-weight: 500;
+       color: #111827;
+     }
+     .description-section {
+       margin-bottom: 24px;
+     }
+     .description-section h4 {
+       margin: 0 0 8px 0;
+       font-size: 1rem;
+       font-weight: 600;
+       color: #374151;
+     }
+     .description-text {
+       margin: 0;
+       padding: 12px;
+       background: #f9fafb;
+       border-radius: 6px;
+       border-left: 3px solid #3b82f6;
+       font-size: 0.95rem;
+       line-height: 1.5;
+       color: #4b5563;
+     }
+     .additional-info {
+       border-top: 1px solid #e5e7eb;
+       padding-top: 20px;
+     }
+     .additional-info h4 {
+       margin: 0 0 12px 0;
+       font-size: 1rem;
+       font-weight: 600;
+       color: #374151;
+     }
+     .info-grid {
+       display: flex;
+       flex-direction: column;
+       gap: 8px;
+     }
+     .tech-info {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 8px 12px;
+       background: #f8fafc;
+       border-radius: 6px;
+     }
+     .tech-label {
+       font-size: 0.875rem;
+       color: #64748b;
+     }
+     .tech-value {
+       font-size: 0.875rem;
+       font-weight: 600;
+       color: #1e293b;
+       font-family: 'Courier New', monospace;
+     }
+     /* Footer */
+     .modal-footer {
+       padding: 20px 24px 24px 24px;
+       border-top: 1px solid #e5e7eb;
+       display: flex;
+       justify-content: flex-end;
+     }
+     .close-btn {
+       padding: 10px 20px;
+       background: #3b82f6;
+       color: white;
+       border: none;
+       border-radius: 6px;
+       font-weight: 500;
+       cursor: pointer;
+       transition: background 0.2s;
+     }
+     .close-btn:hover {
+       background: #2563eb;
+     }
