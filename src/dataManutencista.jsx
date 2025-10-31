@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 export function useDashboardData() {
-
   const [barRegularData, setBarRegularData] = useState([]);
   const [initialEvents, setInitialEvents] = useState([]);
   const [pieData, setPieData] = useState([]);
@@ -12,85 +11,146 @@ export function useDashboardData() {
   useEffect(() => {
     async function fetchParadasData() {
       try {
-
-      const res = await fetch(`${import.meta.env.VITE_API_URL}api/manutencao/listar`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}api/manutencao/listar`, {
           method: "GET",
           headers: {
             "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
           },
-          mode: "cors",          // garante requisição CORS
-          credentials: "include", // se o backend usar cookies/autenticação
+          mode: "cors",
+          credentials: "include",
         });
 
         const registros = await res.json();
+        console.log("Dados brutos da API de manutenções:", registros);
 
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        // --- FILTRAR REGISTROS VÁLIDOS ---
+        const registrosValidos = registros.filter(r => 
+          r.dt_manutencao !== null && 
+          r.hora_inicio !== null && 
+          r.hora_fim !== null &&
+          r.id_maquina !== null
+        );
+
+        console.log("Registros válidos de manutenção:", registrosValidos);
+
+        // --- PROCESSAR DATAS ---
+        const registrosComDatas = registrosValidos.map((r) => {
+          const dataInicio = new Date(`${r.dt_manutencao}T${r.hora_inicio}`);
+          let dataFim = new Date(`${r.dt_manutencao}T${r.hora_fim}`);
+          
+          // Se início e fim forem iguais, adicionar 1 hora de duração mínima
+          if (dataInicio.getTime() === dataFim.getTime()) {
+            dataFim = new Date(dataInicio.getTime() + (60 * 60 * 1000));
+          }
+
+          return { 
+            ...r, 
+            dataInicio, 
+            dataFim,
+            dataManutencao: new Date(r.dt_manutencao)
+          };
+        });
+
+        // --- BARRAS MÊS (SEMPRE DO ANO ATUAL) ---
+        const anoAtual = new Date().getFullYear();
         const valoresPorMes = Array(12).fill(0);
+        const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-        // --- CONVERTER AS DATAS DO BACKEND ---
-        const registrosComDatas = registros.map((r) => {
-          const data = new Date(r.date); // vem em formato "YYYY-MM-DD"
-          const dataInicio = new Date(data.setHours(8, 0, 0)); // 8h da manhã
-          const dataFim = new Date(data.setHours(9, 30, 0)); // 9h30
-          return { ...r, dataInicio, dataFim };
-        });
-
-        // --- GRÁFICO DE BARRAS ---
         registrosComDatas.forEach((r) => {
-          const mes = r.dataInicio.getMonth();
-          valoresPorMes[mes] += 1;
+          if (!isNaN(r.dataInicio) && r.dataInicio.getFullYear() === anoAtual) {
+            const mes = r.dataInicio.getMonth();
+            valoresPorMes[mes] += 1;
+          }
         });
 
-        setBarRegularData(meses.map((m, i) => ({ name: m, value: valoresPorMes[i] })));
+        const dadosGrafico = meses.map((m, i) => ({ 
+          name: m, 
+          value: valoresPorMes[i],
+          mes: i + 1
+        }));
+        
+        setBarRegularData(dadosGrafico);
+        console.log(`Dados barras (manutenções ${anoAtual}):`, dadosGrafico);
 
         // --- CALENDÁRIO ---
-        const eventos = registrosComDatas.map((r) => ({
-          title: `${r.acao_realizada} - Máquina ${r.id_maquina}`,
-          start: r.dataInicio,
-          end: r.dataFim,
-          className: r.acao_realizada.toLowerCase().includes("manutenção")
-            ? "event-manutencao"
-            : "event-parada",
-        }));
+        const eventos = registrosComDatas.map((r) => {
+          const descricao = r.des_acao_realizada || "Manutenção não especificada";
+          
+          return {
+            id: r.id_manutencao,
+            title: `${descricao} - Máquina ${r.id_maquina}`,
+            start: r.dataInicio,
+            end: r.dataFim,
+            className: "event-manutencao",
+            extendedProps: {
+              setor: r.des_setor,
+              maquina: r.id_maquina,
+              usuario: r.id_usuario,
+              tipo: "manutencao",
+              descricao: descricao,
+              idManutencao: r.id_manutencao
+            }
+          };
+        });
+
         setInitialEvents(eventos);
+        console.log("Eventos do calendário (manutenções):", eventos);
 
-        // --- GRÁFICO DE PIZZA ---
-        const total = registrosComDatas.length;
-        const manutencoes = registrosComDatas.filter((r) =>
-          r.acao_realizada.toLowerCase().includes("manutenção")
+        // --- PIE CHART (SEMPRE DO ANO ATUAL) ---
+        const manutencoesAnoAtual = registrosComDatas.filter(
+          (r) => !isNaN(r.dataInicio) && r.dataInicio.getFullYear() === anoAtual
         ).length;
-        const paradas = total - manutencoes;
-
+        
         setPieData([
-          { id: 0, name: "Manutenção", value: manutencoes, color: "#2563eb" },
-          { id: 1, name: "Parada", value: paradas, color: "#94a3b8" },
+          { 
+            id: 0, 
+            name: "Manutenção", 
+            value: manutencoesAnoAtual, 
+            color: "#2563eb" 
+          },
+          { 
+            id: 1, 
+            name: "Parada", 
+            value: 0, 
+            color: "#94a3b8" 
+          },
         ]);
 
-        // --- COMPARAÇÃO ANUAL ---
-        const anoAtual = new Date().getFullYear();
-        const paradasAnoAtual = registrosComDatas.filter(
-          (r) => r.dataInicio.getFullYear() === anoAtual
+        console.log("Dados pizza (manutenções):", { 
+          manutencoes: manutencoesAnoAtual, 
+          paradas: 0 
+        });
+
+        // --- COMPARAÇÃO ANUAL (ANO ATUAL vs ANO ANTERIOR) ---
+        const anoAnterior = anoAtual - 1;
+
+        const manutencoesAnoAnterior = registrosComDatas.filter(
+          (r) => !isNaN(r.dataInicio) && r.dataInicio.getFullYear() === anoAnterior
         ).length;
 
-        const paradasAnoAnterior = registrosComDatas.filter(
-          (r) => r.dataInicio.getFullYear() === anoAtual - 1
-        ).length;
-
-        let aumento = "0.0%";
-        if (paradasAnoAnterior > 0) {
-          aumento = `${(
-            ((paradasAnoAtual - paradasAnoAnterior) / paradasAnoAnterior) *
-            100
-          ).toFixed(1)}%`;
-        } else if (paradasAnoAtual > 0) {
-          aumento = "100.0%";
+        let aumento;
+        if (manutencoesAnoAnterior === 0) {
+          aumento = manutencoesAnoAtual > 0 ? "+100.0%" : "0.0%";
+        } else {
+          const percentual = ((manutencoesAnoAtual - manutencoesAnoAnterior) / manutencoesAnoAnterior) * 100;
+          aumento = `${percentual > 0 ? "+" : ""}${percentual.toFixed(1)}%`;
         }
 
-        setAnnualComparison({ paradasAnoAtual, paradasAnoAnterior, aumento });
-        setParadasAnoAtual(paradasAnoAtual);
+        const comparacao = {
+          manutencoesAnoAtual: manutencoesAnoAtual,
+          manutencoesAnoAnterior: manutencoesAnoAnterior,
+          aumento,
+          anoAtual,
+          anoAnterior
+        };
+
+        setAnnualComparison(comparacao);
+        setParadasAnoAtual(manutencoesAnoAtual);
+
+        console.log("Comparação anual (manutenções):", comparacao);
 
       } catch (err) {
-        console.error("Erro ao buscar dados:", err);
+        console.error("Erro ao buscar dados de manutenções:", err);
       } finally {
         setLoading(false);
       }
