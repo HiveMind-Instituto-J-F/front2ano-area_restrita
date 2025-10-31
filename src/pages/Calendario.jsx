@@ -6,7 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import localePtBr from "@fullcalendar/core/locales/pt-br";
 import { useDashboardData } from "../data";
 import { X, Calendar, Clock, Settings, User, Wrench } from "lucide-react";
-import "./Calendar.css";
+import "./Calendario.css";
 
 const CalendarView = () => {
   const { initialEvents, loading } = useDashboardData();
