@@ -37,7 +37,7 @@ const ColaboradorManutencaoList = () => {
         }
         const data = await response.json();
         const operadores = data.filter(
-          (user) => user.tipo_perfil?.toLowerCase() === "supervisor"
+          (user) => user.des_tipo_perfil?.toLowerCase() === "supervisor"
         );
         setFilteredUsers(operadores);
       } catch (error) {
