@@ -30,7 +30,7 @@ const Sidebar = () => {
           window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
         }
       } catch (err) {
-        console.error("fetch currentUser erro:", err);
+        console.error("fetch currentUser erro:", err);  
       }
     }
 

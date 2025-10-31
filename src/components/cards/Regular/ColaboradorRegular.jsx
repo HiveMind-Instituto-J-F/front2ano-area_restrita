@@ -37,7 +37,7 @@ const ColaboradorRegularList = () => {
         }
         const data = await response.json();
         const operadores = data.filter(
-          (user) => user.tipo_perfil?.toLowerCase() === "operador"
+          (user) => user.des_tipo_perfil?.toLowerCase() === "operador"
         );
         setFilteredUsers(operadores);
       } catch (error) {
