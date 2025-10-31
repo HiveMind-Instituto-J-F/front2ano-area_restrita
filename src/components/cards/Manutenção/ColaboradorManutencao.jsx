@@ -6,9 +6,11 @@ function processUsers(users, filterType) {
 
   switch (filterType) {
     case "ordemAlfabetica":
-      processedUsers.sort((a, b) =>
-        a.login.toUpperCase().localeCompare(b.login.toUpperCase())
-      );
+      processedUsers.sort((a, b) => {
+        const loginA = String(a.desLogin || "").toUpperCase();
+        const loginB = String(b.desLogin || "").toUpperCase();
+        return loginA.localeCompare(loginB);
+      });
       return processedUsers;
 
     default:
@@ -19,11 +21,12 @@ function processUsers(users, filterType) {
 const ColaboradorManutencaoList = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchUsers() {
       try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}api/trabalhador/listar`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}api/trabalhador/listar`, {
           method: "GET",
           headers: {
             "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
@@ -35,13 +38,42 @@ const ColaboradorManutencaoList = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
-        const operadores = data.filter(
-          (user) => user.des_tipo_perfil?.toLowerCase() === "supervisor"
-        );
-        setFilteredUsers(operadores);
+        
+        // Validar se data é um array
+        if (!Array.isArray(data)) {
+          throw new Error("Resposta da API não é um array");
+        }
+
+        console.log("Dados brutos da API:", data);
+
+        // Filtrar supervisores com validação segura
+        const supervisores = data
+          .filter(user => {
+            // Verificar se user existe e tem a propriedade des_tipo_perfil
+            if (!user || typeof user !== 'object') return false;
+            
+            const tipoPerfil = user.des_tipo_perfil;
+            return tipoPerfil && String(tipoPerfil).toLowerCase() === "supervisor" && "engenheiro";
+          })
+          .map(user => ({
+            // Usar os nomes corretos das propriedades da API
+            id: user.id_trabalhador || Math.random().toString(36).substr(2, 9),
+            desLogin: String(user.desLogin || "").trim() || "Nome não informado",
+            setor: String(user.des_setor || "").trim() || "—",
+            id_planta: user.id_planta || "—",
+            des_tipo_perfil: user.des_tipo_perfil || "",
+            des_imagem: user.des_imagem || null
+          }));
+
+        console.log("Supervisores processados:", supervisores);
+        setFilteredUsers(supervisores);
+        
       } catch (error) {
         console.error("Erro ao buscar colaboradores:", error);
+        setError(error.message);
+        setFilteredUsers([]); // Garantir array vazio em caso de erro
       } finally {
         setLoading(false);
       }
@@ -55,7 +87,21 @@ const ColaboradorManutencaoList = () => {
     setFilteredUsers(result);
   };
 
+  // Função segura para obter a primeira letra do nome
+  const getInitial = (desLogin) => {
+    const safeLogin = String(desLogin || "").trim();
+    return safeLogin.charAt(0).toUpperCase() || "U";
+  };
+
+  // Função segura para gerar avatar
+  const getAvatarUrl = (desLogin) => {
+    const initial = getInitial(desLogin);
+    return `https://placehold.co/28x28/e5e7eb/4b5563?text=${initial}`;
+  };
+
   if (loading) return <p>Carregando colaboradores...</p>;
+
+  if (error) return <p>Erro ao carregar colaboradores: {error}</p>;
 
   return (
     <div
@@ -69,7 +115,7 @@ const ColaboradorManutencaoList = () => {
           alignItems: "center",
         }}
       >
-        <h3>Colaboradores (Operadores)</h3>
+        <h3>Colaboradores (Supervisores)</h3>
         <button
           style={{
             color: "#6b7280",
@@ -120,7 +166,7 @@ const ColaboradorManutencaoList = () => {
             style={{ display: "flex", alignItems: "center", fontWeight: "500" }}
           >
             <img
-              src={`https://placehold.co/28x28/e5e7eb/4b5563?text=${item.login.charAt(0).toUpperCase()}`}
+              src={getAvatarUrl(item.desLogin)}
               alt="avatar"
               style={{
                 borderRadius: "50%",
@@ -129,7 +175,7 @@ const ColaboradorManutencaoList = () => {
                 height: "28px",
               }}
             />
-            <span>{item.login}</span>
+            <span>{item.desLogin}</span>
           </div>
           <span>{item.setor || "—"}</span>
           <span style={{ textAlign: "right", fontWeight: "600" }}>
@@ -137,6 +183,12 @@ const ColaboradorManutencaoList = () => {
           </span>
         </div>
       ))}
+
+      {filteredUsers.length === 0 && !loading && (
+        <div style={{ textAlign: "center", padding: "20px", color: "#6b7280" }}>
+          Nenhum supervisor encontrado
+        </div>
+      )}
     </div>
   );
 };
