@@ -9,7 +9,8 @@ export function useDashboardData() {
     async function fetchDashboardData() {
       try {
         const headers = {
-          "Authorization": "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
+          "Authorization":
+            "Basic " + btoa(`${import.meta.env.VITE_USERNAME_CREDENTIAL}:${import.meta.env.VITE_PASSWORD_CREDENTIAL}`),
         };
 
         const [resRegistros, resManutencoes] = await Promise.all([
@@ -20,39 +21,37 @@ export function useDashboardData() {
         const registros = await resRegistros.json();
         const manutencoes = await resManutencoes.json();
 
+        // --- Eventos de PARADA ---
         const eventosRegistros = registros
           .map((r) => {
-            if (!r.date || !r.hora_inicio || !r.hora_fim) return null;
+            if (!r.dt_parada || !r.hora_inicio || !r.hora_fim) return null;
 
-            const start = new Date(`${r.date.split("T")[0]}T${r.hora_inicio}`);
-            const end = new Date(`${r.date.split("T")[0]}T${r.hora_fim}`);
+            const start = new Date(`${r.dt_parada}T${r.hora_inicio}`);
+            const end = new Date(`${r.dt_parada}T${r.hora_fim}`);
 
             if (isNaN(start) || isNaN(end)) return null;
 
             return {
-              title: `${r.descricao || "Parada"} - Máquina ${r.id_maquina}`,
+              title: `${r.des_parada || "Parada"} - Máquina ${r.id_maquina}`,
               start,
               end,
-              className:
-                r.tipo_parada?.toLowerCase() === "preventiva"
-                  ? "event-manutencao"
-                  : "event-parada",
+              className: "event-parada",
             };
           })
           .filter(Boolean);
 
-        // --- Converter manutenções em eventos ---
+        // --- Eventos de MANUTENÇÃO ---
         const eventosManutencao = manutencoes
           .map((m) => {
-            if (!m.date || !m.hora_inicio || !m.hora_fim) return null;
+            if (!m.dt_manutencao || !m.hora_inicio || !m.hora_fim) return null;
 
-            const start = new Date(`${m.date.split("T")[0]}T${m.hora_inicio}`);
-            const end = new Date(`${m.date.split("T")[0]}T${m.hora_fim}`);
+            const start = new Date(`${m.dt_manutencao}T${m.hora_inicio}`);
+            const end = new Date(`${m.dt_manutencao}T${m.hora_fim}`);
 
             if (isNaN(start) || isNaN(end)) return null;
 
             return {
-              title: `${m.acao_realizada} - Máquina ${m.id_maquina}`,
+              title: `${m.des_acao_realizada} - Máquina ${m.id_maquina}`,
               start,
               end,
               className: "event-manutencao",
@@ -60,7 +59,6 @@ export function useDashboardData() {
           })
           .filter(Boolean);
 
-        // --- Unir tudo em um só calendário ---
         const todosEventos = [...eventosRegistros, ...eventosManutencao];
 
         console.log("Eventos para o calendário:", todosEventos);
