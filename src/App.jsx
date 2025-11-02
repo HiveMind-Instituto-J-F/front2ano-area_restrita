@@ -11,7 +11,7 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:8080/HivemindWeb_war/checkSession", { credentials: "include" })
+    fetch("https://timeleanwebsite-production.up.railway.app/checkSession", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (data.loggedIn) {
@@ -22,7 +22,7 @@ function App() {
           }
         } else {
           localStorage.setItem("lastPage", window.location.pathname);
-          window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
+          window.location.href = "https://timeleanwebsite-production.up.railway.app/pages/login.jsp";
         }
       });
   }, []);

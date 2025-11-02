@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const [email, setEmail] = useState(null);
+  const [image, setImage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -10,7 +11,7 @@ const Sidebar = () => {
 
     async function fetchUser() {
       try {
-        const res = await fetch("http://localhost:8080/HivemindWeb_war/checkSession", {
+        const res = await fetch("https://timeleanwebsite-production.up.railway.app/checkSession", {
           method: "GET",
           credentials: "include"
         });
@@ -25,9 +26,10 @@ const Sidebar = () => {
 
         if (data.loggedIn) {
           setEmail(data.email || "");
+          setImage(data.image || "https://i.guim.co.uk/img/media/d619fa31c267a9e7191e1ec40d4cd67f3c629924/37_0_592_355/master/592.jpg?width=620&dpr=1&s=none&crop=none");
         } else {
           localStorage.setItem("lastPage", window.location.pathname);
-          window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
+          window.location.href = "https://timeleanwebsite-production.up.railway.app/pages/login.jsp";
         }
       } catch (err) {
         console.error("fetch currentUser erro:", err);  
@@ -43,14 +45,14 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("/HivemindWeb_war/logout", {
+      await fetch("/logout", {
         method: "POST",
         credentials: "include"
       });
     } catch (err) {
       console.error("Erro no logout:", err);
     } finally {
-      window.location.href = "http://localhost:8080/HivemindWeb_war/html/login.jsp";
+      window.location.href = "https://timeleanwebsite-production.up.railway.app/pages/login.jsp";
     }
   };
 
@@ -59,8 +61,11 @@ const Sidebar = () => {
       <div className="user">
         <img
           className="avatar"
-          src="https://i.guim.co.uk/img/media/d619fa31c267a9e7191e1ec40d4cd67f3c629924/37_0_592_355/master/592.jpg?width=620&dpr=1&s=none&crop=none"
+          src={image || "https://i.guim.co.uk/img/media/d619fa31c267a9e7191e1ec40d4cd67f3c629924/37_0_592_355/master/592.jpg?width=620&dpr=1&s=none&crop=none"}
           alt="avatar"
+          onError={(e) => {
+            e.target.src = "https://i.guim.co.uk/img/media/d619fa31c267a9e7191e1ec40d4cd67f3c629924/37_0_592_355/master/592.jpg?width=620&dpr=1&s=none&crop=none";
+          }}
         />
         <div>
           <h4>{email ? email.split("@")[0] : "Usuário"}</h4>
