@@ -41,17 +41,13 @@ const ColaboradorRegularList = () => {
         
         const data = await response.json();
         
-        // Validar se data é um array
         if (!Array.isArray(data)) {
           throw new Error("Resposta da API não é um array");
         }
 
-        console.log("Dados brutos da API:", data);
 
-        // Filtrar operadores com validação segura
         const operadores = data
           .filter(user => {
-            // Verificar se user existe e tem a propriedade des_tipo_perfil
             if (!user || typeof user !== 'object') return false;
             
             const tipoPerfil = user.des_tipo_perfil;
@@ -62,18 +58,15 @@ const ColaboradorRegularList = () => {
             id: user.id_trabalhador || Math.random().toString(36).substr(2, 9),
             desLogin: String(user.desLogin || "").trim() || "Nome não informado",
             setor: String(user.des_setor || "").trim() || "—",
-            id_planta: user.id_planta || "—",
-            des_tipo_perfil: user.des_tipo_perfil || "",
             des_imagem: user.des_imagem || null
           }));
 
-        console.log("Operadores processados:", operadores);
         setFilteredUsers(operadores);
         
       } catch (error) {
         console.error("Erro ao buscar colaboradores:", error);
         setError(error.message);
-        setFilteredUsers([]); // Garantir array vazio em caso de erro
+        setFilteredUsers([]);
       } finally {
         setLoading(false);
       }
@@ -177,10 +170,6 @@ const ColaboradorRegularList = () => {
             />
             <span>{item.desLogin}</span>
           </div>
-          <span>{item.setor || "—"}</span>
-          <span style={{ textAlign: "right", fontWeight: "600" }}>
-            {item.id_planta}
-          </span>
         </div>
       ))}
 

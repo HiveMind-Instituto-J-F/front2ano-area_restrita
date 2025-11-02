@@ -46,7 +46,6 @@ const ColaboradorManutencaoList = () => {
           throw new Error("Resposta da API não é um array");
         }
 
-        console.log("Dados brutos da API:", data);
 
         // Filtrar supervisores com validação segura
         const supervisores = data
@@ -62,12 +61,10 @@ const ColaboradorManutencaoList = () => {
             id: user.id_trabalhador || Math.random().toString(36).substr(2, 9),
             desLogin: String(user.desLogin || "").trim() || "Nome não informado",
             setor: String(user.des_setor || "").trim() || "—",
-            id_planta: user.id_planta || "—",
             des_tipo_perfil: user.des_tipo_perfil || "",
             des_imagem: user.des_imagem || null
           }));
 
-        console.log("Supervisores processados:", supervisores);
         setFilteredUsers(supervisores);
         
       } catch (error) {
@@ -177,10 +174,6 @@ const ColaboradorManutencaoList = () => {
             />
             <span>{item.desLogin}</span>
           </div>
-          <span>{item.setor || "—"}</span>
-          <span style={{ textAlign: "right", fontWeight: "600" }}>
-            {item.id_planta}
-          </span>
         </div>
       ))}
 

@@ -62,7 +62,6 @@ export function useDashboardData() {
         // --- Unir tudo em um só calendário ---
         const todosEventos = [...eventosRegistros, ...eventosManutencao];
 
-        console.log("Eventos para o calendário:", todosEventos);
         setInitialEvents(todosEventos);
 
       } catch (err) {

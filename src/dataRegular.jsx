@@ -21,14 +21,12 @@ export function useDashboardData() {
         });
         
         const registros = await res.json();
-        console.log("Dados brutos da API:", registros);
 
         // Filtrar registros válidos
         const registrosValidos = registros.filter(r => 
           r && r.dt_parada && r.hora_inicio && r.hora_fim
         );
 
-        console.log("Registros válidos:", registrosValidos);
 
         // --- CALENDÁRIO ---
         const eventos = registrosValidos.map((r) => {
@@ -73,7 +71,6 @@ export function useDashboardData() {
           r.id_manutencao === null || r.id_manutencao === undefined
         ).length;
 
-        console.log("Contagem para pie chart:", { manutencoes, paradas });
 
         setPieData([
           { id: 0, name: "Manutenção", value: manutencoes, color: "#2563eb" },
@@ -102,7 +99,6 @@ export function useDashboardData() {
         }));
         
         setBarRegularData(dadosGrafico);
-        console.log("Dados gráfico de barras:", dadosGrafico);
 
         // --- COMPARAÇÃO ANUAL ---
         const anoAtual = new Date().getFullYear();
@@ -142,7 +138,6 @@ export function useDashboardData() {
         setAnnualComparison(comparacao);
         setParadasAnoAtual(paradasAtual);
 
-        console.log("Comparação anual:", comparacao);
 
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
