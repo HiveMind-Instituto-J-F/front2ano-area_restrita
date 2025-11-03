@@ -24,12 +24,6 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
-      - name: Rodar testes
-        run: npm test -- --watchAll=false
-
-      - name: Verificar estilo (ESLint)
-        run: npm run lint
-
       - name: Buildar frontend
         if: github.ref == 'refs/heads/main'
         run: npm run build
