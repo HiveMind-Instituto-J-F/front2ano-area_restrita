@@ -1,30 +1,39 @@
-name: Frontend pipeline
+name: Frontend Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   react-frontend:
-    name: 🌐 Frontend - React
+    name: Frontend - React
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./frontend
 
     steps:
-      - name: 📥 Checkout do código
+      - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: 🟢 Instalar Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
+          cache: 'npm'
 
       - name: 📦 Instalar dependências
-        run: npm install
+        run: npm ci 
 
-      - name: ✅ Rodar testes
+      - name: Rodar testes
         run: npm test -- --watchAll=false
 
-      - name: 🔍 Verificar estilo (ESLint)
+      - name: Verificar estilo (ESLint)
         run: npm run lint
 
-      - name: ⚙️ Buildar frontend (opcional)
+      - name: ⚙️ Buildar frontend
+        if: github.ref == 'refs/heads/main'
         run: npm run build
