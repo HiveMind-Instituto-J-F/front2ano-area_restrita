@@ -26,7 +26,7 @@ jobs:
           cache: 'npm'
 
       - name: Instalar dependências
-        run: npm install
+        run: npm ci
 
       - name: Rodar testes
         run: npm test -- --watchAll=false
