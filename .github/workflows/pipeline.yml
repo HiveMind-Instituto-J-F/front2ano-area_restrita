@@ -11,10 +11,6 @@ jobs:
     name: Frontend - React
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./front2ano-area_restrita
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -34,6 +30,6 @@ jobs:
       - name: Verificar estilo (ESLint)
         run: npm run lint
 
-      - name: ⚙️ Buildar frontend
+      - name: Buildar frontend
         if: github.ref == 'refs/heads/main'
         run: npm run build
